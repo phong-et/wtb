@@ -1,0 +1,4 @@
+.thumbs.db
+node_modules/
+npm-debug.log*
+wtb.cfg
