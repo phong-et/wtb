@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Title of the document</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+  <div class="input-group mb-3">
+    <input type="text" class="form-control" placeholder="Input Token" aria-label="Input Token" aria-describedby="basic-addon2">
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary" type="button">Get Balance</button>
+    </div>
+  </div>
+  <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text">$</span>
+    <span class="input-group-text">0.00</span>
+  </div>
+  <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
+</div>
+<select id="symbol1" class="custom-select">
+    <option value="1">EURUSD</option>
+    <option value="2">AUDUSD</option>
+    <option value="3">GBPUSD</option>
+    <option value="4">USDJPY</option>
+    <option value="5">EURGBP</option>
+    <option value="6">EURJPY</option>
+    <option value="7">USDCAD</option>
+    <option value="8">USDCHF</option>
+    <option value="9">DIAMOND</option>
+    <option value="10">GOLD</option>
+    <option value="11">SILVER</option>
+    <option value="12">OIL</option>
+</select>
+  <div class="container">
+      <div class="row">
+        <div class="col-sm">
+            <table class="result-table"><tbody><tr><td class="result-icon"><img title="2018.7.9 04:00:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:06:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:12:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:18:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:24:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:30:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:36:30" src="images/result-green.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td></tr><tr><td class="result-icon"><img title="2018.7.9 04:01:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:07:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:13:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:19:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:25:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:31:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:37:30" src="images/result-green.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td></tr><tr><td class="result-icon"><img title="2018.7.9 04:02:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:08:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:14:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:20:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:26:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:32:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:38:30" src="images/result-green.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td></tr><tr><td class="result-icon"><img title="2018.7.9 04:03:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:09:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:15:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:21:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:27:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:33:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:39:30" src="images/result-red.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td></tr><tr><td class="result-icon"><img title="2018.7.9 04:04:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:10:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:16:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:22:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:28:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:34:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:40:30" src="images/result-green.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td></tr><tr><td class="result-icon"><img title="2018.7.9 04:05:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:11:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:17:30" src="images/result-red.png"></td><td class="result-icon"><img title="2018.7.9 04:23:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:29:30" src="images/result-green.png"></td><td class="result-icon"><img title="2018.7.9 04:35:30" src="images/result-red.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td><td class="result-icon"><img src="images/result-null.png"></td></tr></tbody></table>
+        </div>
+        <div class="col-sm">
+          One of three columns
+        </div>
+      </div>
+    </div>
+  
+</body>
+
+</html>

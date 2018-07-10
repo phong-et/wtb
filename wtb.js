@@ -218,20 +218,19 @@ module.exports = {
       });
     })
   },
-  createJAR:function(token){
-    let me = this, request = me.request, headers = me.headers, log = me.log 
+  createJAR: function (token) {
+    let me = this, request = me.request, log = me.log
     var url = me.cfg.sites.wealthtrade.url
     var jar = request.jar();
     var cookies = token.split('; ');
-    //console.log(cookies);
     var __cfduid = cookies[0].split('=')[1]
-    var sessionId = cookies[1].split('=')[1];
-    var ASPXFORMSAUTH = cookies[2].split('=')[1];
+    //var sessionId = cookies[1].split('=')[1];
+    var ASPXFORMSAUTH = cookies[1].split('=')[1];
     //log(__cfduid)
     //log(sessionId)
     //log(ASPXFORMSAUTH)
     jar.setCookie(request.cookie('__cfduid' + __cfduid), url);
-    jar.setCookie(request.cookie('ASP.NET_SessionId=' + sessionId), url);
+    //jar.setCookie(request.cookie('ASP.NET_SessionId=' + sessionId), url);
     jar.setCookie(request.cookie('.ASPXFORMSAUTH=' + ASPXFORMSAUTH), url);
     return jar
   },
@@ -251,11 +250,11 @@ module.exports = {
       })
     })
   },
-  getBalance: function(token){
+  getBalance: function (token) {
     let me = this, request = me.request, headers = me.headers, log = me.log
     return new Promise((resolve, reject) => {
       var url = me.cfg.sites.wealthtrade.urlBalance;
-      log('Get Balance :%s',url)
+      log('Get Balance :%s', url)
       request.post({ url: url, jar: me.createJAR(token), headers: headers }, (err, res, body) => {
         if (!err && res.statusCode) {
           //log(res.headers);
@@ -265,6 +264,113 @@ module.exports = {
         }
         else {
           reject(`err at getBalance(), err: ${err}`)
+        }
+      })
+    })
+  },
+  // succes : {"ErrorCode":0,"Message":null,"Status":false,"Data":{"Balance":518.00,"Turnover":[{"BrokerID":1,"SymbolID":9,"TotalBuy":5.00,"TotalSell":0.00,"Balance":0,"AutoStatus":0}]}}
+  // error  : {"ErrorCode":4,"Message":"Invalid order time!","Status":false,"Data":null}
+  bet: function (token, data) {
+    var me = this
+    // var data = {
+    //   brokerId: me.borker.forex, // forex 1, coin 2
+    //   symbolId: me.forex.DIAMOND, // curentcy type
+    //   BetChoice: me.choice.BUY, // buy 1, sell 2
+    //   BetFrom: 'w',
+    //   Stake: 5, // $
+    // }
+
+    return new Promise((resolve, reject) => {
+      url = me.cfg.sites.wealthtrade.urlBet,
+        request = me.request,
+        headers = me.headers;
+      log = me.log
+      log('Bet %s', url);
+      log(data)
+      request.post({
+        url: url,
+        jar: me.createJAR(token),
+        form: data,
+        headers: headers
+      }, (err, res, body) => {
+        if (!err && res.statusCode) {
+          //log(res.headers);
+          // log('code:%s', res.statusCode);
+          resolve(body);
+        }
+        else {
+          reject(`Err at bet() : ${err}`);
+        }
+      });
+    })
+  },
+  choice: { BUY: 1, SELL: 2 },
+  borker: { coin: 2, forex: 1 },
+  coin: {
+    Bitcoin: 1,
+    Ethereum: 2,
+    Bitcoin_Cash: 3,
+    Ripple: 4,
+    Litecoin: 5,
+    IOTA: 6,
+    NEM: 7,
+    Dash: 8,
+    EOS: 9,
+    Stellar: 10,
+    Cardano: 11,
+    NEO: 12
+  },
+  forex: { // symbol
+    EURUSD: 1,
+    AUDUSD: 2,
+    GBPUSD: 3,
+    EURJPY: 4,
+    EURGBP: 5,
+    EURJPY: 6,
+    USDCAD: 7,
+    USDCHF: 8,
+    DIAMOND: 9,
+    GOLD: 10,
+    SILVER: 11,
+    OIL: 12
+  },
+  ball: [{
+    "CandleTime": "\/Date(1531234830000)\/",
+    "Result": 2 // red
+  }, {
+    "CandleTime": "\/Date(1531234890000)\/",
+    "Result": 1 // green
+  }, {
+    "CandleTime": "\/Date(1531234950000)\/",
+    "Result": 2
+  }, {
+    "CandleTime": "\/Date(1531235010000)\/",
+    "Result": 2
+  }, {
+    "CandleTime": "\/Date(1531235070000)\/",
+    "Result": 2
+  }],
+  getBall: function (token, data) {
+    let me = this, request = me.request, headers = me.headers, log = me.log
+    // let data = {
+    //   brokerId: this.borker.forex, 
+    //   symbolId: this.forex.AUDUSD
+    // }
+    //log(token); 
+    return new Promise((resolve, reject) => {
+      request.get({
+        url: me.cfg.sites.wealthtrade.urlBall,
+        form: data,
+        jar: me.createJAR(token),
+        headers: headers
+      }, (err, res, body) => {
+        if (!err && res.statusCode) {
+          //log(res.headers);
+          //log('code:%s', res.statusCode);
+          resolve(body);
+        }
+        else {
+          reject(`err at getBall(), err: ${err}`)
         }
       })
     })
