@@ -250,6 +250,7 @@ module.exports = {
       })
     })
   },
+  //{"ErrorCode":0,"Message":null,"Status":true,"Data":523.0000}
   getBalance: function (token) {
     let me = this, request = me.request, headers = me.headers, log = me.log
     return new Promise((resolve, reject) => {
@@ -260,7 +261,13 @@ module.exports = {
           //log(res.headers);
           //log('code:%s', res.statusCode);
           // {"ErrorCode":0,"Message":null,"Status":true,"Data":495.0000}
-          resolve(body);
+          let balance = me.parse(body)
+          if(balance.ErrorCode == 0){
+            resolve(balance.Data);
+          }
+          else{
+            reject(`err at balance.ErrorCode != 0`)
+          }          
         }
         else {
           reject(`err at getBalance(), err: ${err}`)
@@ -296,7 +303,13 @@ module.exports = {
         if (!err && res.statusCode) {
           //log(res.headers);
           // log('code:%s', res.statusCode);
-          resolve(body);
+          let result = me.parse(body)
+          if(result.ErrorCode === 0){
+            resolve(result)
+          }
+          else{
+            reject(`error at result.ErrorCode : ${result.Message}`);
+          }
         }
         else {
           reject(`Err at bet() : ${err}`);
@@ -367,12 +380,15 @@ module.exports = {
         if (!err && res.statusCode) {
           //log(res.headers);
           //log('code:%s', res.statusCode);
-          resolve(body);
+          resolve(me.parse(body));
         }
         else {
           reject(`err at getBall(), err: ${err}`)
         }
       })
     })
+  },
+  parse:function(str){
+    return JSON.parse(str)
   }
 }
