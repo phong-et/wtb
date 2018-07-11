@@ -304,6 +304,7 @@ module.exports = {
           //log(res.headers);
           // log('code:%s', res.statusCode);
           let result = me.parse(body)
+          //this.log(result)
           if(result.ErrorCode === 0){
             resolve(result)
           }
@@ -388,6 +389,33 @@ module.exports = {
       })
     })
   },
+  // win : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":10.0000,"TotalRefunded":0.0000,"NewBalance":533.0000,"PendingAmount":0}}
+  //lose : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":-10.0000,"TotalRefunded":0.0000,"NewBalance":523.0000,"PendingAmount":0}}
+  getSettledInfo:function(token){
+    let me = this, request = me.request, headers = me.headers, log = me.log
+    return new Promise((resolve, reject) => {
+      var url = me.cfg.sites.wealthtrade.urlSettle;
+      log('Get SettledInfo :%s', url)
+      request.post({ url: url, jar: me.createJAR(token), headers: headers }, (err, res, body) => {
+        if (!err && res.statusCode) {
+          //log(res.headers);
+          //log('code:%s', res.statusCode);
+          // {"ErrorCode":0,"Message":null,"Status":true,"Data":495.0000}
+          let SettledInfo = me.parse(body)
+          if(balance.ErrorCode == 0){
+            resolve(SettledInfo);
+          }
+          else{
+            reject(`err at balance.ErrorCode != 0`)
+          }          
+        }
+        else {
+          reject(`err at getSettledInfo(), err: ${err}`)
+        }
+      })
+    })
+  },
+  // 
   parse:function(str){
     return JSON.parse(str)
   }
