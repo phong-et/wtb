@@ -250,6 +250,21 @@ module.exports = {
       })
     })
   },
+  getNewToken:function(oldToken){
+    let me = this, request = me.request, headers = me.headers, log = me.log
+    return new Promise((resolve, reject) => {
+      request.get({ url: me.cfg.sites.wealthtrade.url, jar: me.createJAR(oldToken), headers: headers }, (err, res, body) => {
+        if (!err && res.statusCode) {
+          log(res.headers);
+          log('code:%s', res.statusCode);
+          resolve(body);
+        }
+        else {
+          reject(`err at loginByToken(), err: ${err}`)
+        }
+      })
+    })
+  },
   //{"ErrorCode":0,"Message":null,"Status":true,"Data":523.0000}
   getBalance: function (token) {
     let me = this, request = me.request, headers = me.headers, log = me.log
@@ -262,18 +277,51 @@ module.exports = {
           //log('code:%s', res.statusCode);
           // {"ErrorCode":0,"Message":null,"Status":true,"Data":495.0000}
           let balance = me.parse(body)
-          if(balance.ErrorCode == 0){
+          if (balance.ErrorCode == 0) {
             resolve(balance.Data);
           }
-          else{
+          else {
             reject(`err at balance.ErrorCode != 0`)
-          }          
+          }
         }
         else {
           reject(`err at getBalance(), err: ${err}`)
         }
       })
     })
+  },
+  choice: { BUY: 1, SELL: 2 },
+  broker: { coin: 2, forex: 1 },
+  coin: {
+    Bitcoin: 1,
+    Ethereum: 2,
+    Bitcoin_Cash: 3,
+    Ripple: 4,
+    Litecoin: 5,
+    IOTA: 6,
+    NEM: 7,
+    Dash: 8,
+    EOS: 9,
+    Stellar: 10,
+    Cardano: 11,
+    NEO: 12
+  },
+  getKey: function (obj, val) {
+    return Object.keys(obj).find(key => obj[key] === val);
+  },
+  forex: { // symbol
+    EURUSD: 1,
+    AUDUSD: 2,
+    GBPUSD: 3,
+    USDJPY: 4,
+    EURGBP: 5,
+    EURJPY: 6,
+    USDCAD: 7,
+    USDCHF: 8,
+    DIAMOND: 9,
+    GOLD: 10,
+    SILVER: 11,
+    OIL: 12
   },
   // succes : {"ErrorCode":0,"Message":null,"Status":false,"Data":{"Balance":518.00,"Turnover":[{"BrokerID":1,"SymbolID":9,"TotalBuy":5.00,"TotalSell":0.00,"Balance":0,"AutoStatus":0}]}}
   // error  : {"ErrorCode":4,"Message":"Invalid order time!","Status":false,"Data":null}
@@ -293,7 +341,15 @@ module.exports = {
         headers = me.headers;
       log = me.log
       log('Bet %s', url);
-      log(data)
+      var infoData = {
+        brokerId: data.brokerId == 1 ? 'FOREX' : 'COIN',
+        symbolId: me.getKey(me.forex, data.symbolId),
+        BetChoice: data.BetChoice == 1 ? 'BUY' : 'SELL',
+        BetFrom: 'w',
+        Stake: data.Stake
+      }
+      this.log(data)
+      log(infoData)
       request.post({
         url: url,
         jar: me.createJAR(token),
@@ -305,10 +361,10 @@ module.exports = {
           // log('code:%s', res.statusCode);
           let result = me.parse(body)
           //this.log(result)
-          if(result.ErrorCode === 0){
+          if (result.ErrorCode === 0) {
             resolve(result)
           }
-          else{
+          else {
             reject(`error at result.ErrorCode : ${result.Message}`);
           }
         }
@@ -317,36 +373,6 @@ module.exports = {
         }
       });
     })
-  },
-  choice: { BUY: 1, SELL: 2 },
-  borker: { coin: 2, forex: 1 },
-  coin: {
-    Bitcoin: 1,
-    Ethereum: 2,
-    Bitcoin_Cash: 3,
-    Ripple: 4,
-    Litecoin: 5,
-    IOTA: 6,
-    NEM: 7,
-    Dash: 8,
-    EOS: 9,
-    Stellar: 10,
-    Cardano: 11,
-    NEO: 12
-  },
-  forex: { // symbol
-    EURUSD: 1,
-    AUDUSD: 2,
-    GBPUSD: 3,
-    EURJPY: 4,
-    EURGBP: 5,
-    EURJPY: 6,
-    USDCAD: 7,
-    USDCHF: 8,
-    DIAMOND: 9,
-    GOLD: 10,
-    SILVER: 11,
-    OIL: 12
   },
   ball: [{
     "CandleTime": "\/Date(1531234830000)\/",
@@ -391,7 +417,7 @@ module.exports = {
   },
   // win : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":10.0000,"TotalRefunded":0.0000,"NewBalance":533.0000,"PendingAmount":0}}
   //lose : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":-10.0000,"TotalRefunded":0.0000,"NewBalance":523.0000,"PendingAmount":0}}
-  getSettledInfo:function(token){
+  getSettledInfo: function (token) {
     let me = this, request = me.request, headers = me.headers, log = me.log
     return new Promise((resolve, reject) => {
       var url = me.cfg.sites.wealthtrade.urlSettle;
@@ -402,12 +428,12 @@ module.exports = {
           //log('code:%s', res.statusCode);
           // {"ErrorCode":0,"Message":null,"Status":true,"Data":495.0000}
           let SettledInfo = me.parse(body)
-          if(balance.ErrorCode == 0){
+          if (balance.ErrorCode == 0) {
             resolve(SettledInfo);
           }
-          else{
+          else {
             reject(`err at balance.ErrorCode != 0`)
-          }          
+          }
         }
         else {
           reject(`err at getSettledInfo(), err: ${err}`)
@@ -416,7 +442,7 @@ module.exports = {
     })
   },
   // 
-  parse:function(str){
+  parse: function (str) {
     return JSON.parse(str)
   }
 }
