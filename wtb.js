@@ -11,12 +11,26 @@ module.exports = {
   utilNode: require('util'),
   fs: require('fs'),
   request: require('request'),
+  appRoot: require('app-root-path'),
   // socket: null,
   // socketNotify: null,
   // webSocket: require('ws'),
   headers: {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.98 Safari/537.36',
     'Content-type': 'text/html'
+  },
+  getToken: function () {
+    var me = this
+    return new Promise((resolve, reject) => {
+      me.fs.readFile(me.appRoot + '/wtb.token', 'utf8', function (err, data) {
+        if (err) {
+          reject(err)
+        }
+        else {
+          resolve(data)
+        }
+      })
+    })
   },
   // use for saving cookies to file - will reset foreach save file success
   arrayCookie: [],
@@ -250,7 +264,7 @@ module.exports = {
       })
     })
   },
-  getNewToken:function(oldToken){
+  getNewToken: function (oldToken) {
     let me = this, request = me.request, headers = me.headers, log = me.log
     return new Promise((resolve, reject) => {
       request.get({ url: me.cfg.sites.wealthtrade.url, jar: me.createJAR(oldToken), headers: headers }, (err, res, body) => {
@@ -340,16 +354,16 @@ module.exports = {
         request = me.request,
         headers = me.headers;
       log = me.log
-      log('Bet %s', url);
+      //log('Bet %s', url);
       var infoData = {
         brokerId: data.brokerId == 1 ? 'FOREX' : 'COIN',
-        symbolId: me.getKey(me.forex, data.symbolId),
+        symbolId: me.getKey(data.brokerId == 1 ? me.forex : me.coin, data.symbolId),
         BetChoice: data.BetChoice == 1 ? 'BUY' : 'SELL',
         BetFrom: 'w',
         Stake: data.Stake
       }
-      this.log(data)
-      log(infoData)
+      //this.log(data)
+      log(JSON.stringify(infoData))
       request.post({
         url: url,
         jar: me.createJAR(token),
@@ -407,7 +421,13 @@ module.exports = {
         if (!err && res.statusCode) {
           //log(res.headers);
           //log('code:%s', res.statusCode);
-          resolve(me.parse(body));
+          try {
+            //log(body)
+            resolve(me.parse(body));
+          }
+          catch (err) {
+            reject(`err at getBall()-<>resolve(me.parse(body)): ${err}`)
+          }
         }
         else {
           reject(`err at getBall(), err: ${err}`)
