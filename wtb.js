@@ -102,15 +102,16 @@ module.exports = {
   },
 
   saveFile: function (fileName, fileContent) {
-    var me = this;
-    var folder = me.config.sites.bet365.pagesPath;
-    if (!me.fs.existsSync(folder)) {
-      me.fs.mkdirSync(folder);
-    }
-    me.fs.writeFile(folder + fileName, fileContent, function (err) {
-      if (err) return me.logErr(err);
-      me.log('Write file ' + fileName + ' > success');
-      me.arrayCookie = [];
+    var me = this, log = me.log
+    // var folder = me.config.sites.bet365.pagesPath;
+    // if (!me.fs.existsSync(folder)) {
+    //   me.fs.mkdirSync(folder);
+    // }
+    me.fs.writeFile(me.appRoot + '/' + fileName, fileContent, function (err) {
+      if (err) {
+        log(err)
+      }
+      log('Write file ' + fileName + ' > success');
     });
   },
   readFile: function (path, callback) {
@@ -264,20 +265,90 @@ module.exports = {
       })
     })
   },
-  getNewToken: function (oldToken) {
-    let me = this, request = me.request, headers = me.headers, log = me.log
-    return new Promise((resolve, reject) => {
-      request.get({ url: me.cfg.sites.wealthtrade.url, jar: me.createJAR(oldToken), headers: headers }, (err, res, body) => {
-        if (!err && res.statusCode) {
-          log(res.headers);
-          log('code:%s', res.statusCode);
-          resolve(body);
-        }
-        else {
-          reject(`err at loginByToken(), err: ${err}`)
-        }
+  token:'',
+  setToken: function (strCookie) {
+    this.log(strCookie)
+    if (strCookie.indexOf('.ASPXFORMSAUTH') > -1) {
+      this.getToken().then(oldToken => {
+        // join __cfduid and .ASPXFORMSAUTH
+        let __cfduid = oldToken.substr(0, oldToken.indexOf('.ASPXFORMSAUTH'))
+        this.log(__cfduid)
+        let newToken = __cfduid + strCookie.split('; ')[0]
+        me.token = newToken
+        this.saveFile('wtb.token', newToken)
+      })
+    }
+  },
+  // not implement
+  //h['set-cookie'] = [ '__cfduid=d7f856de68abcbe379c3a78550ca276b91531565881; expires=Sun, 14-Jul-19 10:58:01 GMT; path=/; domain=.wealthtrade.live; HttpOnly' ]
+  getNewTokenStart: function () {
+    let me = this, log = me.log
+    log('getNewTokenStart')
+    me.getToken().then(token => {
+      //log(token)
+      me.reCheckIn(token).then(h => {
+        log('reCheckIn');
+        me.setToken(h['set-cookie'][0])
+        me.getServerTime(token).then(h => {
+          log('getServerTime')
+          me.setToken(h['set-cookie'][0])
+          me.getSettledInfo(token).then(({ header }) => {
+            log('getSettledInfo')
+            me.setToken(header['set-cookie'][0])
+            me.getBall(token, {
+              brokerId: 1,
+              symbolId: 1
+            }).then(({ header }) => {
+              log('getBall 1')
+              me.setToken(header['set-cookie'][0])
+              me.getBall(token, {
+                brokerId: 2,
+                symbolId: 1
+              }).then(({ header }) => {
+                log('getBall 2')
+                me.setToken(header['set-cookie'][0])
+                me.getCurrentTurnover(token).then(h => {
+                  log('getCurrentTurnover')
+                  me.setToken(header['set-cookie'][0])
+                  me.getBalance(token).then(({ header }) => {
+                    log('getCurrentTurnover')
+                    me.setToken(header['set-cookie'][0])
+                  })
+                })
+              })
+            })
+          })
+        })
       })
     })
+  },
+  getNewTokenStop: function () {
+    let me = this, log = me.log
+    log('getNewTokenStop')
+    return new Promise((resolve,reject)=>{
+      me.getToken().then(token => {
+        //log(token)
+        me.reCheckIn(token).then(h => {
+          log('reCheckIn');
+          me.setToken(h['set-cookie'][0])
+          me.getServerTime(token).then(h => {
+            log('getServerTime')
+            me.setToken(h['set-cookie'][0])
+          })
+        })
+      })
+    })
+    
+  },
+  getNewToken:function(){
+    let me = this    
+    me.getNewTokenStart();
+    setTimeout(function(){
+      me.getNewTokenStop()
+      setTimeout(function(){
+        me.getNewToken()
+      },27000)
+    },27000)
   },
   //{"ErrorCode":0,"Message":null,"Status":true,"Data":523.0000}
   getBalance: function (token) {
@@ -292,10 +363,10 @@ module.exports = {
           // {"ErrorCode":0,"Message":null,"Status":true,"Data":495.0000}
           let balance = me.parse(body)
           if (balance.ErrorCode == 0) {
-            resolve(balance.Data);
+            resolve({ data: balance.Data, header: res.headers });
           }
           else {
-            reject(`err at balance.ErrorCode != 0`)
+            reject(`err at getBalance()->balance.ErrorCode != 0`)
           }
         }
         else {
@@ -342,7 +413,7 @@ module.exports = {
   bet: function (token, data) {
     var me = this
     // var data = {
-    //   brokerId: me.borker.forex, // forex 1, coin 2
+    //   brokerId: me.broker.forex, // forex 1, coin 2
     //   symbolId: me.forex.DIAMOND, // curentcy type
     //   BetChoice: me.choice.BUY, // buy 1, sell 2
     //   BetFrom: 'w',
@@ -354,6 +425,7 @@ module.exports = {
         request = me.request,
         headers = me.headers;
       log = me.log
+
       //log('Bet %s', url);
       var infoData = {
         brokerId: data.brokerId == 1 ? 'FOREX' : 'COIN',
@@ -362,8 +434,9 @@ module.exports = {
         BetFrom: 'w',
         Stake: data.Stake
       }
-      //this.log(data)
       log(JSON.stringify(infoData))
+      //this.log(data)
+
       request.post({
         url: url,
         jar: me.createJAR(token),
@@ -371,7 +444,7 @@ module.exports = {
         headers: headers
       }, (err, res, body) => {
         if (!err && res.statusCode) {
-          //log(res.headers);
+          // log(res.headers);
           // log('code:%s', res.statusCode);
           let result = me.parse(body)
           //this.log(result)
@@ -379,11 +452,11 @@ module.exports = {
             resolve(result)
           }
           else {
-            reject(`error at result.ErrorCode : ${result.Message}`);
+            reject(`Error at bet()->result.ErrorCode : ${result.Message}`);
           }
         }
         else {
-          reject(`Err at bet() : ${err}`);
+          reject(`Error at bet() : ${err}`);
         }
       });
     })
@@ -394,15 +467,6 @@ module.exports = {
   }, {
     "CandleTime": "\/Date(1531234890000)\/",
     "Result": 1 // green
-  }, {
-    "CandleTime": "\/Date(1531234950000)\/",
-    "Result": 2
-  }, {
-    "CandleTime": "\/Date(1531235010000)\/",
-    "Result": 2
-  }, {
-    "CandleTime": "\/Date(1531235070000)\/",
-    "Result": 2
   }],
   getBall: function (token, data) {
     let me = this, request = me.request, headers = me.headers, log = me.log
@@ -420,23 +484,23 @@ module.exports = {
       }, (err, res, body) => {
         if (!err && res.statusCode) {
           //log(res.headers);
-          //log('code:%s', res.statusCode);
+          // log('code:%s', res.statusCode);
           try {
-            //log(body)
-            resolve(me.parse(body));
+            // log(body)
+            resolve({ body: me.parse(body), header: res.headers });
           }
           catch (err) {
-            reject(`err at getBall()-<>resolve(me.parse(body)): ${err}`)
+            reject(`Err at getBall()-<>resolve(me.parse(body)): ${err}`)
           }
         }
         else {
-          reject(`err at getBall(), err: ${err}`)
+          reject(`Err at getBall(), err: ${err}`, res.headers)
         }
       })
     })
   },
-  // win : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":10.0000,"TotalRefunded":0.0000,"NewBalance":533.0000,"PendingAmount":0}}
-  //lose : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":-10.0000,"TotalRefunded":0.0000,"NewBalance":523.0000,"PendingAmount":0}}
+  // win  : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":10.0000,"TotalRefunded":0.0000,"NewBalance":533.0000,"PendingAmount":0}}
+  // lose : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":-10.0000,"TotalRefunded":0.0000,"NewBalance":523.0000,"PendingAmount":0}}
   getSettledInfo: function (token) {
     let me = this, request = me.request, headers = me.headers, log = me.log
     return new Promise((resolve, reject) => {
@@ -444,19 +508,14 @@ module.exports = {
       log('Get SettledInfo :%s', url)
       request.post({ url: url, jar: me.createJAR(token), headers: headers }, (err, res, body) => {
         if (!err && res.statusCode) {
-          //log(res.headers);
-          //log('code:%s', res.statusCode);
+          // log(res.headers);
+          // log('code:%s', res.statusCode);
           // {"ErrorCode":0,"Message":null,"Status":true,"Data":495.0000}
-          let SettledInfo = me.parse(body)
-          if (balance.ErrorCode == 0) {
-            resolve(SettledInfo);
-          }
-          else {
-            reject(`err at balance.ErrorCode != 0`)
-          }
+          let Info = body, header = res.headers
+          resolve({ Info, header });
         }
         else {
-          reject(`err at getSettledInfo(), err: ${err}`)
+          reject(`Error at getSettledInfo(), err: ${err}`)
         }
       })
     })
@@ -464,5 +523,55 @@ module.exports = {
   // 
   parse: function (str) {
     return JSON.parse(str)
+  },
+  reCheckIn: function (token) {
+    let me = this, request = me.request, headers = me.headers, log = me.log
+    log(me.cfg.sites.wealthtrade.urlReCheckIn)
+    return new Promise((resolve, reject) => {
+      request.post({ url: me.cfg.sites.wealthtrade.urlReCheckIn, jar: me.createJAR(token), headers: headers }, (err, res, body) => {
+        if (!err && res.statusCode) {
+          // log(res.headers);
+          // log('code:%s', res.statusCode);
+          resolve(res.headers);
+        }
+        else {
+          reject(`Error at reCheckIn(): ${err}`)
+        }
+      })
+    })
+  },
+  getServerTime: function (token) {
+    let me = this, request = me.request, headers = me.headers, log = me.log
+    return new Promise((resolve, reject) => {
+      request.get({
+        url: me.cfg.sites.wealthtrade.urlServerTime,
+        jar: me.createJAR(token),
+        headers: headers
+      }, (err, res, body) => {
+        if (!err && res.statusCode) {
+          // log(res.headers);
+          // log('code:%s', res.statusCode);
+          resolve(res.headers);
+        }
+        else {
+          reject(`Error at getServerTime(): ${err}`)
+        }
+      })
+    })
+  },
+  getCurrentTurnover: function (token) {
+    let me = this, request = me.request, headers = me.headers, log = me.log
+    return new Promise((resolve, reject) => {
+      request.post({ url: me.cfg.sites.wealthtrade.urlCurrentTurnOver, jar: me.createJAR(token), headers: headers }, (err, res, body) => {
+        if (!err && res.statusCode) {
+          // log(res.headers);
+          // log('code:%s', res.statusCode);
+          resolve(res.headers);
+        }
+        else {
+          reject(`Error at getCurrentTurnover(): ${err}`)
+        }
+      })
+    })
   }
 }

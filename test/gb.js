@@ -8,10 +8,12 @@ wtb.getToken().then(token => {
   wtb.getBall(token, {
     brokerId: wtb.broker.forex,
     symbolId: wtb.forex.AUDUSD
-  }).then(body => {
+  }).then((body,headers) => {
     log(body);
-  }, err => {
+    log(headers)
+  }, (err,headers) => {
     log(err)
+    log(headers)
   })
 
 })

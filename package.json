@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "cd test && node gb"
+    "test": "cd test && node gb",
+    "sv": "node ./wtb.sv.token"
   },
   "dependencies": {
     "app-root-path": "^2.1.0",
+    "browser-cookies": "^1.2.0",
     "cheerio": "^1.0.0-rc.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
