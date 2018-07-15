@@ -182,43 +182,43 @@ function callBet2(token, broker, symbol, betBalance) {
 }
 //callBet2(token, broker[0].coin, symbol.coin[0][Object.keys(symbol.coin[0])[0]], betBalance)
 
-var broker = [
-  {
-    id: 1,
-    name: 'FOREX',
-    values: [
-      1,// EURUSD
-      2,// AUDUSD
-      3,// GBPUSD
-      4,// USDJPY
-      5,// EURGBP
-      6,// EURJPY
-      7,// USDCAD
-      8,// USDCHF
-      9,// DIAMOND
-      10,// GOLD
-      11,// SILVER
-      12 // OIL
-    ]
-  }, {
-    id: 2,
-    name: 'COIN',
-    values: [
-      1,// Bitcoin
-      2,// Ethereum
-      3,// Bitcoin Cash
-      4,// Ripple
-      5,// Litecoin
-      6,// IOTA
-      7,// NEM
-      8,// Dash
-      9,// EOS
-      10,// Stellar
-      11,// Cardano
-      12 // NEO
-    ]
-  }
-]
+// var broker = [
+//   {
+//     id: 1,
+//     name: 'FOREX',
+//     values: [
+//       1,// EURUSD
+//       2,// AUDUSD
+//       3,// GBPUSD
+//       4,// USDJPY
+//       5,// EURGBP
+//       6,// EURJPY
+//       7,// USDCAD
+//       8,// USDCHF
+//       9,// DIAMOND
+//       10,// GOLD
+//       11,// SILVER
+//       12 // OIL
+//     ]
+//   }, {
+//     id: 2,
+//     name: 'COIN',
+//     values: [
+//       1,// Bitcoin
+//       2,// Ethereum
+//       3,// Bitcoin Cash
+//       4,// Ripple
+//       5,// Litecoin
+//       6,// IOTA
+//       7,// NEM
+//       8,// Dash
+//       9,// EOS
+//       10,// Stellar
+//       11,// Cardano
+//       12 // NEO
+//     ]
+//   }
+// ]
 function callBet3(token, brokerId, symbolId, betBalance) {
   startTime = new Date()
   wtb.getBall(token, {
@@ -281,9 +281,9 @@ var availablePlay = {
   _1: true, _7: true, _13: true, _19: true, _25: true, _31: true, _37: true, _43: true, _49: true, _55: true,
   _2: true, _8: true, _14: true, _20: true, _26: true, _32: true, _38: true, _44: true, _50: true, _56: true,
   _3: true, _9: true, _15: true, _21: true, _27: true, _33: true, _39: true, _45: true, _51: true, _57: true,
-  // _4: true, _10: true, _16: true, _22: true, _28: true, _34: 2, _40: true, _46: true, _52: true, _58: true,
-  // _5: true, _11: true, _17: true, _23: true, _29: true, _35: true, _41: true, _47: true, _53: true, _59: true,
-  // _6: true, _12: true, _18: true, _24: true, _30: true, _36: true, _42: true, _48: true, _54: true, _60: true
+  _4: true, _10: true, _16: true, _22: true, _28: true, _34: 2, _40: true, _46: true, _52: true, _58: true,
+  _5: true, _11: true, _17: true, _23: true, _29: true, _35: true, _41: true, _47: true, _53: true, _59: true,
+  _6: true, _12: true, _18: true, _24: true, _30: true, _36: true, _42: true, _48: true, _54: true, _60: true
 }
 // 
 var historyBet = {
@@ -370,6 +370,9 @@ function callBet4(token, brokerId, symbolId, betBalance) {
 //   callBet4(token, broker[0].id, broker[0].values[0], betBalance);
 // })
 // loop each currency pair
+var count = [
+
+]
 function callBet5(token, brokerId, symbolId, betBalance) {
   startTime = new Date()
   wtb.getBall(token, {
@@ -410,9 +413,15 @@ function callBet5(token, brokerId, symbolId, betBalance) {
             // TODO
             // Calc timeout exactly
             // GetBall
-            setTimeout(function(){
-              
-            },25000,)
+            
+              wtb.getServerTime(token).then(({time})=>{
+                let second = new Date(time).getSeconds();
+                let timeout = (60 - second)*1000
+                log('timeout=%s | second=%s',timeout,second);
+                setTimeout(function(){
+                  callBet5(token, brokerId, symbolId, betBalance)
+                },timeout)
+              })
           })
       }
       else {
@@ -433,6 +442,9 @@ function callBet5(token, brokerId, symbolId, betBalance) {
     }
   })
 }
+wtb.getToken().then(token => {
+  callBet5(token, broker[0].id, broker[0].values[0], betBalance);
+})
 
 
 

@@ -1,5 +1,44 @@
 var wtb = require('../wtb')
 var log = console.log
+var betBalance = 10
+let startTime, endTime, duration,i=0,j=0
+var broker = [
+  {
+    id: 1,
+    name: 'FOREX',
+    values: [
+      1,// EURUSD
+      2,// AUDUSD
+      3,// GBPUSD
+      4,// USDJPY
+      5,// EURGBP
+      6,// EURJPY
+      7,// USDCAD
+      8,// USDCHF
+      9,// DIAMOND
+      10,// GOLD
+      11,// SILVER
+      12 // OIL
+    ]
+  }, {
+    id: 2,
+    name: 'COIN',
+    values: [
+      1,// Bitcoin
+      2,// Ethereum
+      3,// Bitcoin Cash
+      4,// Ripple
+      5,// Litecoin
+      6,// IOTA
+      7,// NEM
+      8,// Dash
+      9,// EOS
+      10,// Stellar
+      11,// Cardano
+      12 // NEO
+    ]
+  }
+]
 // only check indexball avaiable bet or not
 var availablePlay = {
   _1: true, _7: true, _13: true, _19: true, _25: true, _31: true, _37: true, _43: true, _49: true, _55: true,

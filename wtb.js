@@ -501,6 +501,7 @@ module.exports = {
   },
   // win  : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":10.0000,"TotalRefunded":0.0000,"NewBalance":533.0000,"PendingAmount":0}}
   // lose : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":10.0000,"TotalWinloss":-10.0000,"TotalRefunded":0.0000,"NewBalance":523.0000,"PendingAmount":0}}
+  // refund : {"ErrorCode":0,"Message":null,"Status":true,"Data":{"TotalStake":5.0000,"TotalWinloss":0.0000,"TotalRefunded":5.0000,"NewBalance":10570.0000,"PendingAmount":0}}
   getSettledInfo: function (token) {
     let me = this, request = me.request, headers = me.headers, log = me.log
     return new Promise((resolve, reject) => {
@@ -540,6 +541,7 @@ module.exports = {
       })
     })
   },
+  // {"ErrorCode":0,"Message":null,"Status":true,"Data":"2018-07-15T08:19:32Z"}
   getServerTime: function (token) {
     let me = this, request = me.request, headers = me.headers, log = me.log
     return new Promise((resolve, reject) => {
@@ -551,7 +553,9 @@ module.exports = {
         if (!err && res.statusCode) {
           // log(res.headers);
           // log('code:%s', res.statusCode);
-          resolve(res.headers);
+          let data = {header:res.headers,time:JSON.parse(body).Data}
+          //log(data)
+          resolve(data);
         }
         else {
           reject(`Error at getServerTime(): ${err}`)

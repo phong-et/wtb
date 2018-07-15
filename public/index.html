@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  <div class="input-group mb-3">
+  <!-- <div class="input-group mb-3">
     <input type="text" class="form-control" placeholder="Input Token" aria-label="Input Token" aria-describedby="basic-addon2">
     <div class="input-group-append">
       <button class="btn btn-outline-secondary" type="button">Get Balance</button>
@@ -47,8 +47,13 @@
           One of three columns
         </div>
       </div>
-    </div>
-  
+    </div> -->
+    
+    <iframe id="iframeId" style="width: 100%; height: 90%;" src="https://order.wealthtrade.live/"></iframe>
+    <script>      
+        console.log(document.cookie)
+        console.log(document.getElementById("iframeId").contentDocument.cookie)
+      </script>
 </body>
 
 </html>
