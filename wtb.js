@@ -577,5 +577,18 @@ module.exports = {
         }
       })
     })
+  },
+  waitToPlay:function(message,token,paramBet,f){
+    this.getServerTime(token).then(({ time }) => {
+      let secondsAvailablPlay = new Date(time).getSeconds();
+      //                                                        6 - play immediately
+      let secondsRemainBall = (6 - (paramBet.indexBall % 6 == 0?6:paramBet.indexBall % 6)) * 60
+      let timeout = (60 - secondsAvailablPlay + secondsRemainBall) * 1000
+      this.log('==> %s = 60s - %ss(secondsAvailablPlay) + %ss(secondsRemainBall) = %s (%s minutes)', message, secondsAvailablPlay, secondsRemainBall, timeout, timeout/60000);
+      setTimeout(function () {
+        // check result ball, if win stop lose continue, and update betCount
+        f(token, paramBet.brokerId, paramBet.symbolId, paramBet.defaultBetBalance)
+      }, timeout)
+    })
   }
 }
